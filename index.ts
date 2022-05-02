@@ -27,7 +27,7 @@ let currentLesson: {
   msg?: Message
 } = {}
 
-client.setToken("OTcwMjMwMzI1MjgyMjA5ODAy.Ym47Zw.qEJD89mLvOJgnJIW6hsBlFwxOJc")
+client.setToken(process.env.ENOTTOKEN ?? "")
 client.defaultGuild = "967069655015489578"
 client.localSlashCommands()
 client.debug()
