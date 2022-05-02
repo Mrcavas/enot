@@ -1,4 +1,5 @@
 import {
+  AdminOnly,
   ButtonRowComponent,
   CategoryChannel,
   CommandHandler,
@@ -34,6 +35,7 @@ client.localSlashCommands()
 client.debug()
 client.start()
 
+@AdminOnly
 @SlashCommandListener
 class SlashCommands {
   @CommandHandler
@@ -75,7 +77,7 @@ class SlashCommands {
       )?.setParent(currentLessonsId)) as TextChannel
 
     currentLesson.msg = await cmd.original.channel?.send({
-      content: `@Mrcavas, ${formatLesson(start, end, date, place)}`,
+      content: `${formatLesson(start, end, date, place)}`,
       components: [
         new ButtonRowComponent(
           new NicordButton("cancel", "Отменить", "DANGER"),
