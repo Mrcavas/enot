@@ -16,6 +16,7 @@ import {
   TextChannel
 } from "nicord.js"
 
+const { token } = require("./enot_token.json")
 const client = new NicordClient([
   IntentsFlags.GUILDS,
   IntentsFlags.GUILD_MESSAGES
@@ -27,7 +28,7 @@ let currentLesson: {
   msg?: Message
 } = {}
 
-client.setToken(process.env.ENOTTOKEN ?? "")
+client.setToken(token)
 client.defaultGuild = "967069655015489578"
 client.localSlashCommands()
 client.debug()
