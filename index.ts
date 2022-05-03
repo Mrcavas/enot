@@ -8,6 +8,7 @@ import {
   Message,
   Name,
   NicordButton,
+  NicordButtonInteraction,
   NicordClient,
   NicordSlashCommand,
   NumberOption,
@@ -18,10 +19,7 @@ import {
 } from "nicord.js"
 
 const { token } = require("./enot_token.json")
-const client = new NicordClient([
-  IntentsFlags.GUILDS,
-  IntentsFlags.GUILD_MESSAGES
-])
+const client = new NicordClient([IntentsFlags.ALL])
 const currentLessonsId = "970211089650450483"
 const pastLessonsId = "969562758339231755"
 let currentLesson: {
@@ -77,7 +75,7 @@ class SlashCommands {
       )?.setParent(currentLessonsId)) as TextChannel
 
     currentLesson.msg = await cmd.original.channel?.send({
-      content: `${formatLesson(start, end, date, place)}`,
+      content: `@everyone, ${formatLesson(start, end, date, place)}`,
       components: [
         new ButtonRowComponent(
           new NicordButton("cancel", "Отменить", "DANGER"),
@@ -90,10 +88,29 @@ class SlashCommands {
 }
 
 client.addCommandListener(SlashCommands)
-client.registerButton("cancel", (_) => lockLessonWithReason("отменено"))
-client.registerButton("finish", (_) => lockLessonWithReason("закончено"))
+client.registerButton("cancel", (action) =>
+  lockLessonWithReason(action, "отменено", "хотел отменить занятие")
+)
+client.registerButton("finish", (action) =>
+  lockLessonWithReason(action, "закончено", "хотел закончить занятие")
+)
 
-const lockLessonWithReason = async (reason: string) => {
+const lockLessonWithReason = async (
+  action: NicordButtonInteraction,
+  reason: string,
+  text: string
+) => {
+  const user = (await action.guild?.members.fetch())?.get(
+    action.user.id
+  )
+  if (!user?.permissions.has("ADMINISTRATOR")) {
+    await action.ephemeral("не надо")
+    const msg = await currentLesson.channel?.send(
+      `Ай-ай-ай, ${action.user.username} ${text}, но енот ему не позволит!`
+    )
+    setTimeout(() => msg?.delete(), 3600)
+    return
+  }
   currentLesson.msg?.edit({
     content: `*${currentLesson.msg.content} (${reason})*`,
     components: []
